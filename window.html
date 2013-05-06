@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf8" />
+		<title>Bas Settings Window</title>
+		<style>
+			* {
+				-webkit-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			
+			body {
+				font-family: "Lucida Grande";
+				font-size: 13px;
+				-webkit-user-select: none;
+				cursor: default;
+				overflow: hidden;
+				min-width: 450px;
+				background-color: #EEE;
+			}
+			
+			h1 {
+				font-weight: bold;
+				font-size: 13px;
+			}
+			
+			.fullwidth {
+				width: 100%;
+			}
+			
+			[indent] {
+				margin-left: 1em;
+			}
+			
+			[mini] {
+				width: 5em;
+			}
+			
+			[margintop] {
+				margin-top: 1em;
+			}
+			
+			[bigmargintop] {
+			 	margin-top: 2em;
+			 }
+			
+			disabled {
+				pointer-events: none;
+			}
+			
+			input {
+				font-size: 13px;
+			}
+			
+			p {
+				margin: 0px;
+				padding: 0px;
+				margin-bottom: 0.5em;
+				line-height: 1.5em;
+			}
+			
+			hr {
+				margin-top: 1em;
+				margin-bottom: 1em;
+				border: none;
+				border-top: solid #BBB 1px;
+			}
+			
+			[checkbox] {
+				padding-left: 1.2em;
+			}
+			
+			[checkbox][indent] {
+				padding-left: 2.4em;
+			}
+			
+			[checkbox] input[type=checkbox]:first-child {
+				margin-left: -1.2em;
+			}
+			
+			help {
+				display: block;
+				margin-top: 0.5em;
+				font-size: 11px;
+				padding-left: 0.5em;
+			}
+			
+			[disabled] {
+				color: #BBB;
+				-webkit-user-select: none;
+				pointer-events: none;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<p><label for="urls">URLs to Fetch (space separated list)</label></p>
+		<p><input class="fullwidth" type="text" id="urls" name="urls" /></p>
+		<hr />
+		<p checkbox>
+			<label>
+				<input type="checkbox" id="crawl" name="crawl"/>
+				Crawl based on these URLs
+			</label>
+		</p>
+		<p indent disabled checkbox>
+			<label>
+				<input type="checkbox" id="limitcrawl" name="limitcrawl" disabled/>
+				Stop crawl when
+			</label>
+			<input
+				disabled
+				mini
+				type="text"
+				name="crawlthreshold"
+				id="crawllimitthreshold"
+				title="Stop crawl when this number of resources have been downloaded."
+				value="100" />
+			resources have been downloaded
+			<help>If a limit is not specified the Bas scan may continue indefinitely.</help>
+		</p>
+		<p margintop>
+			<label checkbox>
+				<input type="checkbox" id="dieonfirst" name="dieonfirst"/>
+				Die on first error
+			</label>
+		</p>
+		<hr />
+		<h1>What's going to happen</h1>
+		<p explanation></p>
+		<script type="text/javascript">
+			var $ = function(input,context) {
+				return [].slice.call(document.querySelectorAll(input,context),0);
+			};
+			
+			function all() { return $("input"); }
+			
+			function enumerateOptions() {
+				var options = {};
+				all().forEach(function(item) {
+					if (!item.getAttribute("id")) return;
+					
+					if (item.getAttribute("type") === "checkbox") {
+						options[item.getAttribute("id")]
+								= !!item.checked;
+					} else {
+						options[item.getAttribute("id")]
+									= item.getAttribute("value");
+					}
+				});
+				
+				return options;
+			}
+			
+			function updateUI() {
+				var options = enumerateOptions();
+				
+				updateText(options);
+				
+				
+				window.sendMessage("options",options);
+				
+			}
+			
+			function updateText(options) {
+				
+				var textbox = $("p[explanation]")[0],
+					text = "Bas will ";
+				
+				if ( options.crawl) text += "commence a crawl from the specified URLs";
+				if (!options.crawl) text += "request the specified URLs";
+				
+				if (options.crawl && options.limitcrawl)
+					text += " and will request a maximum of " +
+							parseInt(options.crawlthreshold,10) +
+							"resources. ";
+				
+				if (!options.crawl || !options.limitcrawl) text += ". ";
+				
+				if (options.dieonfirst)
+					text += "Bas will stop testing on encountering an error. ";
+					
+				text += "The assertion test results will be opened in a new window.";
+				
+				textbox.innerText = text;
+			}
+			
+			window.addEventListener("load",function() {
+				all().forEach(function(item) {
+					item.addEventListener("click",updateUI);
+					item.addEventListener("keypress",updateUI);
+					item.addEventListener("keydown",updateUI);
+					item.addEventListener("change",updateUI);
+				});
+				
+				updateUI();
+			});
+			
+			window.addEventListener("resize",function() {
+				window.sendMessage("resize");
+				document.body.style.backgroundColor = "hsl(" + ((Math.random()*360)|0) + ",50%,50%)";
+			});
+		</script>
+	</body>
+</html>
