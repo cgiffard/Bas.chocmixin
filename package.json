@@ -1,0 +1,19 @@
+{
+  "name": "bas.chocmixin",
+  "version": "0.0.1",
+  "description": "Chocolat.app mixin for bas",
+  "main": "init.js",
+  "dependencies": {
+    "bas": "0.0.9"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": "",
+  "keywords": [
+    "bas"
+  ],
+  "author": "Christopher Giffard <christopher.giffard@cgiffard.com>",
+  "license": "BSD"
+}
