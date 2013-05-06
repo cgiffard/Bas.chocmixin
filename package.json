@@ -10,7 +10,7 @@
   "scripts": {
     "test": "npm test"
   },
-  "repository": "",
+  "repository": "https://github.com/cgiffard/Bas.chocmixin.git",
   "keywords": [
     "bas"
   ],
