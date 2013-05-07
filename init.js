@@ -1,21 +1,19 @@
-var BAS = require("bas");
+var BAS = require("bas"),
+	Fetcher = require("./fetcher");
 
 Hooks.addMenuItem("Actions/Run Sheet With Bas", "cmd-b", function() {
-	
 	console.log("Bas main window requested!");
 	loadSettingsWindow();
 });
 
 function loadSettingsWindow() {
 	
-	var initWindow	= new Window(),
-		options		= {};
+	var options	= {},
+		initWindow = new Window();
 	
 	initWindow.title = "Initialise Bas Scan";
+	initWindow.useDefaultCSS = false;
 	initWindow.htmlPath = "window.html";
-	
-	initWindow.setFrame({x:0, y:0, width:490, height:350});
-	initWindow.center();
 	
 	var okText = [
 		"Initialise That Scan!",
@@ -25,28 +23,59 @@ function loadSettingsWindow() {
 		"Now You're Cooking With Bas"][(Math.random()*5)|0];
 	
 	initWindow.buttons = [okText,"Cancel"];
-	initWindow.onButtonClick = function(name) {
-		initWindow.hide();
-		
-		if (name !== "Cancel")
-			runBasSheet();
-	}
 	
+	initWindow.setFrame({x:0, y:0, width:490, height:380});
+	initWindow.center();
 	initWindow.run();
 	initWindow.show();
 	
-	initWindow.onMessage = function(name,args) {
-		console.log(name,args);
-		if (name === "options") return options = args[0];
+	initWindow.onButtonClick = function(name) {
 		
-	};
-	
-	console.log("STUFF");
-	console.log(initWindow.evalExpr("JSON.stringify(enumerateOptions())"));
+		if (name === "Cancel")
+			return initWindow.close();
+		
+		options = initWindow.evalExpr("enumerateOptions()");
+		
+		if (!options.urls || !options.urls.replace(/\s/ig,"").length)
+			return Alert.show(
+						"You must specify at least one URL to request.",
+						"And they should be valid URLs, but I won't hold your hand.",
+						["Well, OK then."]);
+		
+		getBasDocument(options);
+	}
 }
 
-function runBasSheet() {
-	var testSuite = new BAS();
+function getBasDocument(options) {
+	var currentDocument = Document.current(),
+		basText = currentDocument.text;
 	
+	if (!basText.match(/\@page/) || !basText.match(/\@all/))
+		return Alert.show(
+			"This doesn't look like a Bas sheet.",
+			"You need to open a valid Bas sheet before running a test.",
+			["Well, OK then."]);
 	
+	runBasSheet(options,basText);
+}
+
+function runBasSheet(options,text) {
+	var urlList	 =
+			options.urls
+				.split(/\s+/ig)
+				.filter(function(item) { return !!item.length; });
+	
+	var limit =
+			options.crawl && options.crawlthreshhold ?
+				options.crawlthreshhold : Infinity;
+	
+	var testSuite	= new BAS(),
+		fetcher		= new Fetcher(testSuite,urlList,options.crawl,limit);
+	
+	testSuite.loadSheet(new Buffer(text))
+		.yep(fetcher.go);
+		
+	fetcher.on("complete",function() {
+		
+	});
 }

@@ -4,7 +4,10 @@
   "description": "Chocolat.app mixin for bas",
   "main": "init.js",
   "dependencies": {
-    "bas": "0.0.9"
+    "bas": "0.0.9",
+    "simplecrawler": "~0.2.2",
+    "request": "~2.21.0",
+    "async": "~0.2.8"
   },
   "devDependencies": {},
   "scripts": {
