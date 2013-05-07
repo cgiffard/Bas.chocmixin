@@ -75,7 +75,7 @@ function getBasDocument(options) {
 	var currentDocument = Document.current(),
 		basText = currentDocument.text;
 	
-	if (!basText.match(/\@page/) || !basText.match(/\@all/))
+	if (!basText.match(/\@page/) && !basText.match(/\@all/))
 		return Alert.show(
 			"This doesn't look like a Bas sheet.",
 			"You need to open a valid Bas sheet before running a test.",
