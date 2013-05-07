@@ -56,6 +56,16 @@ function getBasDocument(options) {
 			"You need to open a valid Bas sheet before running a test.",
 			["Well, OK then."]);
 	
+	Alert.notify({
+		title: "Commencing tests...",
+		subtitle: "Bas will now test your requested URLs.",
+		body: "Use the goto keyword 10 times in the same file",
+		button: "Stop",
+		callback: function () {
+			// Do something when the "Revert" button is clicked
+		}
+	});
+	
 	runBasSheet(options,basText);
 }
 
